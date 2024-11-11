@@ -24,9 +24,9 @@ class _InifiniteDraggableSliderState extends State<InifiniteDraggableSlider> {
 
   Offset getOffset(int stackIndex) {
     return {
-          0: const Offset(0, 45),
-          1: const Offset(-100, 30),
-          2: const Offset(100, 30),
+          0: const Offset(0, 80),
+          1: const Offset(-80, 30),
+          2: const Offset(80, 30),
         }[stackIndex] ??
         const Offset(0, 0);
   }
@@ -36,7 +36,7 @@ class _InifiniteDraggableSliderState extends State<InifiniteDraggableSlider> {
   }
 
   double getScale(int stackIndex) {
-    return {0: 0.6, 1: 0.8, 2: 0.85}[stackIndex] ?? 0.9;
+    return {0: 0.7, 1: 0.85, 2: 0.85}[stackIndex] ?? 0.9;
   }
 
   @override
@@ -48,10 +48,11 @@ class _InifiniteDraggableSliderState extends State<InifiniteDraggableSlider> {
             child: Transform.scale(
               scale: getScale(stackIndex),
               child: Transform.rotate(
-                  angle: getAngle(stackIndex),
-                  child: DraggableWidget(
-                      child: widget.itemBuilder(context, stackIndex),
-                      isEnableDrag: stackIndex == 4)),
+                angle: getAngle(stackIndex),
+                child: DraggableWidget(
+                    isEnableDrag: stackIndex == 3,
+                    child: widget.itemBuilder(context, stackIndex)),
+              ),
             ));
       }),
     );
