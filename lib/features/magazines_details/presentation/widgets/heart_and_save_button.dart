@@ -14,8 +14,8 @@ class HeartAndSaveButtons extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final double height = 48;
-    final double width = 48;
+    const double height = 48;
+    const double width = 48;
     final bottom =
         MediaQuery.of(context).size.height - ViceUIConsts.headerHeight(context);
     return Positioned(
