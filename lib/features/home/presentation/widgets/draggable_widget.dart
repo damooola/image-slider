@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 
 enum SlideDirection { left, right }
@@ -22,6 +24,7 @@ class DraggableWidget extends StatefulWidget {
 class _DraggableWidgetState extends State<DraggableWidget>
     with SingleTickerProviderStateMixin {
   late AnimationController restoreController;
+  late Size screenSize;
   final _widgetKey = GlobalKey();
   Offset startOffset = Offset.zero;
   Offset panOffset = Offset.zero;
@@ -43,6 +46,7 @@ class _DraggableWidgetState extends State<DraggableWidget>
     if (!restoreController.isAnimating) {
       setState(() {
         panOffset = details.globalPosition - startOffset;
+        angle = currentAngle;
       });
     }
   }
@@ -51,6 +55,18 @@ class _DraggableWidgetState extends State<DraggableWidget>
     if (restoreController.isAnimating) {
       return;
     }
+    final velocityX = details.velocity.pixelsPerSecond.dx;
+    final positionX = currentPosition.dx;
+
+    if (velocityX < -1000 || positionX < -outSizeLimit) {
+      isSlideMade = widget.onSlideOut != null;
+      widget.onSlideOut?.call(SlideDirection.left);
+    }
+
+    if (velocityX > 1000 || positionX > (screenSize.width - outSizeLimit)) {
+      isSlideMade = widget.onSlideOut != null;
+      widget.onSlideOut?.call(SlideDirection.right);
+    }
     restoreController.forward();
   }
 
@@ -58,14 +74,26 @@ class _DraggableWidgetState extends State<DraggableWidget>
     if (restoreController.isCompleted) {
       restoreController.reset();
       panOffset = Offset.zero;
+      isSlideMade = false;
+      angle = 0;
       setState(() {});
     }
   }
 
-  Offset get getCurrentPosition {
+  Offset get currentPosition {
     final renderBox =
         _widgetKey.currentContext?.findRenderObject() as RenderBox?;
     return renderBox?.localToGlobal(Offset.zero) ?? Offset.zero;
+  }
+
+  double get currentAngle {
+    return currentPosition.dx < 0
+        ? (pi * 0.2) * currentPosition.dx / size.width
+        : currentPosition.dx + size.width > screenSize.width
+            ? (pi * 0.2) *
+                (currentPosition.dx + size.width - screenSize.width) /
+                size.width
+            : 0;
   }
 
   void getChildSize() {
@@ -81,6 +109,7 @@ class _DraggableWidgetState extends State<DraggableWidget>
           ..addListener(restoreAnimationListener);
     WidgetsBinding.instance.addPostFrameCallback(
       (_) {
+        screenSize = MediaQuery.of(context).size;
         getChildSize();
       },
     );
@@ -107,7 +136,10 @@ class _DraggableWidgetState extends State<DraggableWidget>
           animation: restoreController,
           builder: (context, child) {
             final value = 1 - restoreController.value;
-            return Transform.translate(offset: panOffset * value, child: child);
+            return Transform.translate(
+                offset: panOffset * value,
+                child: Transform.rotate(
+                    angle: angle * (isSlideMade ? 1 : value), child: child));
           },
           child: child,
         ));
