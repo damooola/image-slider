@@ -28,11 +28,6 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     super.initState();
   }
 
-  @override
-  void dispose() {
-    super.dispose();
-  }
-
   void openMagazineDetail(
     BuildContext context,
     int index,
@@ -79,7 +74,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                       magazine: Magazine.fakeMagazinesList[index]),
               itemCount: Magazine.fakeMagazinesList.length,
             )),
-            const SizedBox(height: 72),
+            const SizedBox(height: 70),
             SizedBox(
               height: 140,
               child: AllEditionsListView(magazines: magazines),
